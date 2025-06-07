@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <title id="titleWeb"></title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Tác giả: Diện Dương">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/spinload.css">
+    <link rel="stylesheet" type="text/css" href=" https://fonts.googleapis.com/css?family=Pacifico" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            touch-action: manipulation;
+             background: linear-gradient(135deg, #f9a8d4, #f3e8ff);
+        }
+
+        #app {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .step {
+            position: absolute;
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.509);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .step.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-none {
+            background: linear-gradient(135deg, #4e4449, #d7b4ba);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .ml15 {
+            margin-left: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #ec4899, #f43f5e, #f59e0b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .heart-beat {
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.1);
+            }
+
+            50% {
+                transform: scale(1);
+            }
+
+            75% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .emoji {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .reason-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .reason-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        #progress-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 400px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            z-index: 100;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ec4899, #f43f5e);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body onload="loadSound()">
+    <div class="wrapper">
+        <div id="canvas-container"></div>
+        <!-- Preloader -->
+        <div id="preloader">
+            <div class="spinner">
+                <div class="rect1"></div>
+                <div class="rect2"></div>
+                <div class="rect3"></div>
+                <div class="rect4"></div>
+                <div class="rect5"></div>
+            </div>
+        </div>
+        <div id="bg"></div>
+        <!-- <div class="content">
+            <!-- <header>
+                <h2 id="title"></h2>
+                <h4 id="desc"></h4>
+            </header> -->
+            <button id="yes" type="button" class="btn btn-danger btn-lg"> </button>
+            <button id="no" type="button" class="btn btn-info btn-lg"></button>
+           
+        </div> -->
+    </div>
+    <div id="app">
+        <div id="content">
+            <!-- Step 1: Initial Reveal -->
+            <div class="step active" id="step1">
+                <div class="emoji heart-beat">❤️</div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gradient">Quỳnh ơiiii</h1>
+                <p class="text-xl text-gray-700 mb-8">Em muốn khám phá những thứ tiếp theo chứ...</p>
+                <button class="btn" id="start-btn">^^HiHi Có^^</button>
+            </div>
+
+            <!-- Step 2: Birthday Message -->
+            <div class="step" id="step2">
+                <div class="emoji">🎉</div>
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gradient">Khoảnh Khắc Định Mệnh</h2>
+                <p class="text-lg text-gray-700 mb-6">
+                    <div class="bg-gradient-to-r from-pink-200 to-rose-200 rounded-xl p-8 mb-8 flex flex-col justify-center items-center">
+                        <img src="img/f.gif" height="200" width="200" alt="" srcset="">
+                    </div>
+                    Quỳnh ơi, từ lần đầu gặp em, tim anh đã lạc nhịp. Nụ cười của em như ánh nắng, làm cả thế giới anh bừng sáng. Em có muốn biết anh đã "lạc lối" thế nào không?
+                </p>
+                <button class="btn" id="next-btn-2">Tiếp tục nào!</button>
+            </div>
+
+            <!-- Step 3: Reasons You're Amazing -->
+            <div class="step" id="step3">
+                <h2 class="text-3xl md:text-4xl font-bold mb-8 text-gradient">Câu Hỏi Nho Nhỏ</h2>
+                <p class="text-lg text-gray-700 mb-6">
+                    <div class="bg-gradient-to-r from-pink-200 to-rose-200 rounded-xl p-8 mb-8 flex flex-col justify-center items-center">
+                        <img src="img/h.gif" height="200" width="200" alt="" srcset="">
+                    </div>
+                    Em có tin vào duyên số không? Vì anh nghĩ, trái đất tròn để anh được lạc vào tim nàng đó! Cho anh cơ hội kể tiếp được không nè?
+                </p>
+                <button class="btn" id="next-btn-3">Đồng ý chứ!</button>
+            </div>
+
+            <!-- Step 4: Memory Lane -->
+            <div class="step" id="step4">
+                <div class="emoji">📸</div>
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gradient">Lời Từ Trái Tim</h2>
+                <div class="bg-gradient-to-r from-pink-200 to-rose-200 rounded-xl p-8 mb-8 flex flex-col justify-center items-center">
+                    <img src="img/gOA62Z61.gif" height="" width="200" alt="" srcset="">
+                    <p class="text-lg text-gray-700 italic mt-2"></p>
+                </div>
+                <p class="text-lg text-gray-700 mb-6">
+                    Em à, anh không hứa cho cả thế giới, nhưng anh hứa sẽ dành cả thế giới của anh để khiến em cười và hạnh phúc mỗi ngày. Làm người yêu anh nhé, được không?
+                </p>
+                <button class="btn" id="next-btn-4">Em đồng ý!</button>
+                <button class="btn btn-none" id="no-btn">Hông đâu!</button>
+            </div>
+
+            <!-- Step 5: Final Wish -->
+            <div class="step" id="step5">
+                <div class="emoji">🎂</div>
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-gradient">Tương Lai Của Đôi Ta</h2>
+                <p class="text-lg text-gray-700 mb-8">
+                    Em ơi, anh mơ về ngày ta cùng nắm tay trong lễ cưới ngập hoa, tiếng cười con trẻ vang khắp ngôi nhà nhỏ. Anh hứa sẽ cùng em xây một tổ ấm, nơi yêu thương mãi mãi nở hoa.
+                </p>
+                <div class="bg-gradient-to-r from-pink-200 to-rose-200 rounded-xl p-8 mb-8 flex flex-col justify-center items-center">
+                    <img src="img/Y.jpg" width="200" alt="" srcset="">
+                    <p class="text-lg text-gray-700 italic mt-2"></p>
+                </div>
+                <p class="text-xl font-semibold text-pink-600 mb-8">
+                    Mãi iuuu.. Tình iu của anh! ❤️
+                </p>
+                <button class="btn" id="confetti-btn">🎉❤️🎉</button>
+                <p class="mt-8 text-gray-500"> ❤️ chỉ dành cho em</p>
+            </div>
+        </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="./config.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+        function loadSound() {
+            var audio = new Audio('sound/sound.mp3');
+            audio.play();
+        }
+    </script>
+    <script>
+        // Three.js Heart Background
+        const container = document.getElementById('canvas-container');
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 30;
+
+        // Improved Heart Geometry
+        const x = 0, y = 0;
+        const heartShape = new THREE.Shape();
+        heartShape.moveTo(x + 0.5, y + 0.5);
+        heartShape.bezierCurveTo(x + 0.5, y + 0.5, x + 1, y, x, y);
+        heartShape.bezierCurveTo(x - 1, y, x - 1, y + 1.5, x - 1, y + 1.5);
+        heartShape.bezierCurveTo(x - 1, y + 2.5, x + 0.5, y + 3.5, x + 0.5, y + 3.5);
+        heartShape.bezierCurveTo(x + 0.5, y + 3.5, x + 2, y + 2.5, x + 2, y + 1.5);
+        heartShape.bezierCurveTo(x + 2, y + 1.5, x + 2, y, x + 1, y);
+        heartShape.bezierCurveTo(x + 0.5, y, x + 0.5, y + 0.5, x + 0.5, y + 0.5);
+
+        const extrudeSettings = {
+            depth: 0.5,
+            bevelEnabled: true,
+            bevelSegments: 3,
+            bevelSize: 0.2,
+            bevelThickness: 0.3
+        };
+
+        const heartGeometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+
+        // Create multiple hearts with different colors and properties
+        const hearts = [];
+        const colors = [
+            0xff6b6b, 0xff8e8e, 0xffb3b3, 0xffd8d8,
+            0xff9e9e, 0xffc1c1, 0xff6b8e, 0xff8eb3
+        ];
+
+        for (let i = 0; i < 25; i++) {
+            const material = new THREE.MeshPhongMaterial({
+                color: colors[Math.floor(Math.random() * colors.length)],
+                emissive: 0xff0000,
+                emissiveIntensity: 0.1,
+                shininess: 100,
+                transparent: true,
+                opacity: 0.9
+            });
+
+            const heart = new THREE.Mesh(heartGeometry, material);
+
+            // Random position and scale
+            heart.position.x = (Math.random() - 0.5) * 50;
+            heart.position.y = (Math.random() - 0.5) * 50;
+            heart.position.z = (Math.random() - 0.5) * 50;
+
+            const scale = Math.random() * 0.8 + 0.5;
+            heart.scale.set(scale, scale, scale);
+
+            // Random rotation
+            heart.rotation.x = Math.random() * Math.PI;
+            heart.rotation.y = Math.random() * Math.PI;
+
+            // Store animation properties
+            heart.userData = {
+                speedX: Math.random() * 0.02 - 0.01,
+                speedY: Math.random() * 0.02 - 0.01,
+                speedZ: Math.random() * 0.02 - 0.01,
+                rotationSpeedX: Math.random() * 0.01,
+                rotationSpeedY: Math.random() * 0.01,
+                originalX: heart.position.x,
+                originalY: heart.position.y,
+                originalZ: heart.position.z,
+                floatDistance: 2 + Math.random() * 3
+            };
+
+            scene.add(heart);
+            hearts.push(heart);
+        }
+
+        // Add lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Animate hearts
+            hearts.forEach(heart => {
+                // Floating animation
+                const time = Date.now() * 0.001;
+                heart.position.x = heart.userData.originalX + Math.sin(time * heart.userData.speedX * 10) * heart.userData.floatDistance;
+                heart.position.y = heart.userData.originalY + Math.sin(time * heart.userData.speedY * 10) * heart.userData.floatDistance;
+                heart.position.z = heart.userData.originalZ + Math.sin(time * heart.userData.speedZ * 10) * heart.userData.floatDistance;
+
+                // Rotation
+                heart.rotation.x += heart.userData.rotationSpeedX;
+                heart.rotation.y += heart.userData.rotationSpeedY;
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Step Navigation
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function showStep(stepNumber) {
+            // Hide all steps
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+
+            // Show current step
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+
+            // Special effect for last step
+            if (stepNumber === totalSteps) {
+                document.getElementById('confetti-btn').classList.add('animate-pulse');
+            }
+        }
+
+        // Button event listeners
+        document.getElementById('start-btn').addEventListener('click', () => {
+            currentStep = 2;
+            showStep(currentStep);
+        });
+
+        document.getElementById('next-btn-2').addEventListener('click', () => {
+            currentStep = 3;
+            showStep(currentStep);
+        });
+
+        document.getElementById('next-btn-3').addEventListener('click', () => {
+            currentStep = 4;
+            showStep(currentStep);
+        });
+
+        document.getElementById('next-btn-4').addEventListener('click', () => {
+            currentStep = 5;
+            showStep(currentStep);
+        });
+
+        let scaleNo = 1.0, scaleYes = 1.0;
+        document.getElementById('no-btn').addEventListener('click', () => {
+            const noBtn = document.getElementById('no-btn');
+            scaleNo -= 0.1;
+            noBtn.style.transform = `scale(${scaleNo})`;
+
+            const yesBtn = document.getElementById('next-btn-4');
+            scaleYes += 0.1;
+            yesBtn.style.transform = `scale(${scaleYes})`
+        });
+
+        // Confetti button
+        document.getElementById('confetti-btn').addEventListener('click', () => {
+            // Standard confetti
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff0000', '#ff69b4', '#ff1493', '#ffc0cb']
+            });
+
+            // Heart-shaped confetti
+            setTimeout(() => {
+                confetti({
+                    particleCount: 30,
+                    spread: 60,
+                    origin: { y: 0.5 },
+                    shapes: ['heart'],
+                    colors: ['#ff0000', '#ff69b4']
+                });
+            }, 300);
+
+            // More hearts from different directions
+            setTimeout(() => {
+                confetti({
+                    particleCount: 20,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    shapes: ['heart'],
+                    colors: ['#ff0000', '#ff69b4']
+                });
+
+                confetti({
+                    particleCount: 20,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    shapes: ['heart'],
+                    colors: ['#ff0000', '#ff69b4']
+                });
+            }, 600);
+
+            // Make hearts float up from the background
+            hearts.forEach(heart => {
+                gsap.to(heart.position, {
+                    y: heart.position.y - 30,
+                    duration: 3,
+                    ease: "power1.out"
+                });
+
+                gsap.to(heart.material, {
+                    opacity: 0,
+                    duration: 3,
+                    ease: "power1.out"
+                });
+            });
+        });
+
+    </script>
+    <script src="js/animate-heart-canvas-browser.js?v=20230222171908"></script>
+    <script>
+        let queryData = getSearchData()
+        console.log(queryData)
+        let animateHeartCanvas = new AnimateHeartCanvas(
+            Number(queryData.hMin),
+            Number(queryData.hMax),
+            Number(queryData.countHeart),
+            Number(queryData.sizeMin),
+            Number(queryData.sizeMax),
+            queryData.bgColor,
+        )
+
+        /****************************
+         *
+         *  获取地址栏get数据
+         *
+         *  - 有值的时候返回一个包含所有参数的对象
+         *  - 无值的时候，返回 `false`
+         *
+         ****************************/
+
+        function getSearchData(){
+            let searchString = location.search;
+            if (searchString){
+                let obj = {};
+                searchString = searchString.substring(1, searchString.length);
+                let tempArray = searchString.split('&');
+                tempArray.forEach(item => {
+                    obj[item.split('=')[0]] = decodeURIComponent(item.split('=')[1]);
+                });
+                return obj;
+            } else {
+                return false;
+            }
+        }
+    </script>
+</body>
+
+</html>
